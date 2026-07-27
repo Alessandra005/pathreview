@@ -53,12 +53,16 @@ class TestGitHubToolHasTests:
 
         mock_readme_resp = MagicMock(status_code=200)
 
-        with patch("httpx.get", return_value=mock_repo_resp), \
-             patch("httpx.head", return_value=mock_readme_resp):
-            result = tool.execute({
-                "github_username": "Alessandra005",
-                "repo_name": "pathreview",
-            })
+        with (
+            patch("httpx.get", return_value=mock_repo_resp),
+            patch("httpx.head", return_value=mock_readme_resp),
+        ):
+            result = tool.execute(
+                {
+                    "github_username": "Alessandra005",
+                    "repo_name": "pathreview",
+                }
+            )
 
         assert result.success is True
         assert "has_readme" in result.data  # sanity check: sibling field exists
