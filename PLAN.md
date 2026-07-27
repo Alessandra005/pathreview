@@ -9,6 +9,7 @@ The current repo metadata doesn’t indicate whether a project contains tests. T
 The metadata dict should include a new boolean field:
 ```python
 has_tests: bool
+```
 
 ### Map
 - `agent/tools/github_tool.py` — `_fetch_repo_metadata` builds the `metadata` dict (name, description, star_count, has_readme, etc.); this is where a `has_tests` key needs to be added, and where a new `_has_tests` helper method (mirroring the existing `_has_readme`) should live.
