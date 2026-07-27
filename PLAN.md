@@ -3,7 +3,12 @@
 **Issue:** Add a `has_tests` boolean to the repo analysis output — [#50](https://github.com/Alessandra005/pathreview/issues/50)
 
 ### Understand
+The current repo metadata doesn’t indicate whether a project contains tests. This is an important quality signal we want to surface, similar to how we already report `has_readme`. Right now, the GitHubTool returns a metadata dictionary with fields like stars, forks, languages, and `has_readme`, but it never checks for test directories or test files. The fix is to extend the GitHubTool’s metadata generation so it detects common test patterns (e.g., `tests/`, `test/`, `test_*.py`) and adds a new boolean field `has_tests` to the output. Once implemented, any repo analyzed by the tool will clearly indicate whether it includes tests, improving the usefulness of the overall analysis.
 
+### Expected Behavior
+The metadata dict should include a new boolean field:
+```python
+has_tests: bool
 
 ### Map
 - `agent/tools/github_tool.py` — `_fetch_repo_metadata` builds the `metadata` dict (name, description, star_count, has_readme, etc.); this is where a `has_tests` key needs to be added, and where a new `_has_tests` helper method (mirroring the existing `_has_readme`) should live.
