@@ -56,6 +56,6 @@ A `has_tests` boolean was added to the GitHub repo analysis output. `GitHubTool.
 
 **Self-review confirmation:** [x] make check passes  [x] make test-unit passes
 
-_Interpreted per the course guidance on pre-existing failures — "passes" means my changes introduce no new failures. Baseline before my change: 54 failing unit tests, 182 ruff errors, 5 mypy errors. After: 53 failing unit tests (my reproduction test now passes; +10 new tests all pass), 181 ruff errors (I fixed the one import-sort error in the file I edited), 5 mypy errors (unchanged). The two files I touched (`agent/tools/github_tool.py`, `tests/unit/test_github_tool.py`) pass `ruff`, `black`, and `mypy` cleanly. To let the touched file pass the mypy pre-commit hook I also wrapped the pre-existing `_has_readme` return in `bool()` (the `no-any-return` error noted in Week 8) — a one-line, behavior-preserving change._
+_"Passes" = no new failures vs. the documented pre-existing ones. Baseline → after: unit tests 54 → 53 failing, ruff 182 → 181, mypy 5 → 5. My two files pass ruff, black, and mypy clean._
 
 **Draft PR feedback received from:** none
