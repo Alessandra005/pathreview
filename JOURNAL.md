@@ -26,3 +26,36 @@ Created a mocked unit test (`tests/unit/test_github_tool.py`) that runs `GitHubT
 
 **Blockers or open questions:**
 The original issue pointed to `agent/tools/repo_analyzer.py`, but that file doesn’t exist in this project. The correct place for the fix is `GitHubTool._fetch_repo_metadata`, next to where `has_readme` is already computed. While writing the test, a separate mypy error surfaced in the `_has_readme` helper. This issue isn’t related to #50, so I’m not fixing it here, but I’m noting it in the plan for future cleanup.
+
+## Week 9 — Solution building & PR submission
+
+### Check-in 1
+
+**Current progress:**
+Implemented the fix in `GitHubTool`. Added a `_has_tests(username, repo_name)` helper (modeled on `_has_readme`) that lists the repo root via the GitHub contents API and detects a `tests/` or `test/` directory, a `pytest.ini` file, or a root-level `test_*.py` file, then wired its result into `_fetch_repo_metadata` as a new `has_tests` boolean. The Week 8 reproduction test now passes. Sub-tasks 1–3 from PLAN.md are done.
+
+**Next steps:**
+Expand `tests/unit/test_github_tool.py` from the single reproduction test into a full suite covering every detection branch and the graceful-failure paths (non-200, non-list payload, network error). Run `make check` and `make test-unit`, confirm my changes add no new failures on top of the codebase's documented pre-existing ones, then open a draft PR for peer feedback.
+
+**Blockers:**
+The codebase has a large number of pre-existing `make check`/`make test-unit` failures unrelated to #50. I recorded a baseline (54 failing unit tests, 182 ruff errors, 5 mypy errors) before starting so I can prove my change doesn't make things worse.
+
+---
+
+### Check-in 2 
+
+**PR link:** https://github.com/ascherj/pathreview/pull/644
+
+**Branch:** `feat/50-test-detection`
+
+**What you built:**
+A `has_tests` boolean was added to the GitHub repo analysis output. `GitHubTool._has_tests` queries the GitHub contents API for the repository root and returns `True` when it finds a `tests/`/`test/` directory, a `pytest.ini`, or a root-level `test_*.py` file, mirroring the existing `has_readme` signal. It returns explicit booleans and swallows non-200/malformed/network errors as `False`, so it adds no new failure mode to metadata fetching.
+
+**Tests added or updated:**
+`tests/unit/test_github_tool.py` — replaced the single reproduction test with 10 unit tests: each detection branch (`tests/`, `test/`, `pytest.ini`, `test_*.py`), the no-indicator case, a negative case for non-test files that merely contain "test", the non-200 / non-list / exception fallbacks, and an end-to-end check that `execute()` surfaces `has_tests` as a boolean. All 10 pass.
+
+**Self-review confirmation:** [x] make check passes  [x] make test-unit passes
+
+_Interpreted per the course guidance on pre-existing failures — "passes" means my changes introduce no new failures. Baseline before my change: 54 failing unit tests, 182 ruff errors, 5 mypy errors. After: 53 failing unit tests (my reproduction test now passes; +10 new tests all pass), 181 ruff errors (I fixed the one import-sort error in the file I edited), 5 mypy errors (unchanged). The two files I touched (`agent/tools/github_tool.py`, `tests/unit/test_github_tool.py`) pass `ruff`, `black`, and `mypy` cleanly. To let the touched file pass the mypy pre-commit hook I also wrapped the pre-existing `_has_readme` return in `bool()` (the `no-any-return` error noted in Week 8) — a one-line, behavior-preserving change._
+
+**Draft PR feedback received from:** none
