@@ -59,3 +59,34 @@ A `has_tests` boolean was added to the GitHub repo analysis output. `GitHubTool.
 _"Passes" = no new failures vs. the documented pre-existing ones. Baseline → after: unit tests 54 → 53 failing, ruff 182 → 181, mypy 5 → 5. My two files pass ruff, black, and mypy clean._
 
 **Draft PR feedback received from:** none
+
+## Week 10 — Iteration & reflection
+
+### Reviewer feedback
+
+**Feedback received:** [ ] Yes  [x] N/A
+
+**Summary of feedback:**
+Reviewer feedback isn't part of the Summer 2026 offering per the course note.
+
+**How you responded:**
+N/A.
+
+---
+
+### Reflection
+
+**What was harder than you expected?**
+The setup took more time than the fix. PowerShell broke the `pip install httpx>=0.29.0` command and made a random `=0.29.0` file. `pytest` kept running from a global Python instead of my venv. Then `pip install -e .` didn’t install `pytest` because it’s under the `[dev]` extras, so I had to use `pip install -e ".[dev]"`. I also spent part of Week 8 on the wrong branch and had to check both logs before deleting the stale one.
+
+**What did you learn about working in a large codebase?**
+The issue's own file list was wrong. It named `agent/tools/repo_analyzer.py` as one of two relevant files, and that file simply doesn't exist in this codebase. I had to trace `agent/orchestrator.py` to understand that there's no separate "analysis" layer at all; each tool just returns its own dict, and `GitHubTool`'s metadata dict is the real "repo analysis output" the issue meant. I only found the right place to add `has_tests` by grepping for how the existing `has_readme` field was implemented and matching that pattern exactly. 
+
+**How did AI tools help — and where did they fall short?**
+AI was most useful for the archaeology, pointing me at `orchestrator.py` when the issue's file reference turned out to be stale, catching that `_has_readme` used `httpx.head` while the main metadata fetch used `httpx.get`, and matching this codebase's existing test conventions instead of me guessing at a style from scratch. It also caught concrete mistakes fast such as an unclosed code fence in my PLAN.md that would've broken rendering. It fell short sometimes because it can help explain an error, but it can’t prevent the real-world setup problems. All the messy parts like PowerShell breaking the command, missing dev deps, being on the wrong branch, and mypy only failing once a test touched the module, I still had to catch by actually running things myself. It really couldn’t see any of this without me testing it on my own machine first.
+
+**What would you do differently if you started over?**
+I’d check the `[dev]` optional deps on day one and install everything with `pip install -e ".[dev]"` instead of wasting time wondering why `pytest` wasn’t there. I’d also double‑check my active branch before doing any work so I don’t repeat the Week 8 mistake of landing commits on `issue-50` instead of `feat/50-test-detection`. And I’d plan time upfront to verify the issue against the actual codebase, since the stale `repo_analyzer.py` reference cost more time than it should have.
+
+**What are you most proud of from this module?**
+Catching that the issue's stated file (`repo_analyzer.py`) didn't actually exist, instead of assuming the issue description was accurate and trying to force my fix into a file I'd have had to invent from scratch. Going and verifying the real structure of the codebase before writing PLAN.md, and documenting that discovery instead of quietly working around it. It felt like the most honest.
